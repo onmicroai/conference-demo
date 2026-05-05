@@ -343,7 +343,7 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
     }
 
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwTc13xDF_qNHidq_ViZ6dXWegXayVNSOJtvc82q6GxC9JtuHfWlcZKTs40LEL8JbnJhA/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTWbcsEDMVFixa3ERkCcMulxB0pb77mtyoFmUy2s2lePCV3Z_NV59Kgb0JGPsicjCbzA/exec';
 
     function beginDemo() {
       if (!isValidEmail(emailInput.value)) {
@@ -355,11 +355,8 @@
       emailInput.classList.remove('error');
       emailError.textContent = '';
 
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailInput.value.trim() })
+      fetch(SCRIPT_URL + '?email=' + encodeURIComponent(emailInput.value.trim()) + '&app=Clinical%20Demo', {
+        mode: 'no-cors'
       }).catch(() => {});
 
       landing.classList.add('slide-up');
