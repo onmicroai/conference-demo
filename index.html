@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Clinical Simulation</title>
+  <title>OnMicro Demos</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -14,7 +14,6 @@
       background: #050e1a;
     }
 
-    /* ── iframe layer ── */
     #demo-frame {
       position: fixed;
       inset: 0;
@@ -23,7 +22,6 @@
       z-index: 1;
     }
 
-    /* ── landing overlay ── */
     #landing {
       position: fixed;
       inset: 0;
@@ -36,13 +34,14 @@
       background: url('home_background.png') center center / cover no-repeat;
       background-color: #050e1a;
       transition: transform 0.85s cubic-bezier(0.76, 0, 0.24, 1);
+      padding: 28px 32px;
+      overflow-y: auto;
     }
 
     #landing.slide-up {
       transform: translateY(-100%);
     }
 
-    /* subtle grid overlay */
     #landing::before {
       content: '';
       position: absolute;
@@ -54,35 +53,256 @@
       pointer-events: none;
     }
 
+    .landing-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 960px;
+    }
+
+    .screen { width: 100%; display: flex; flex-direction: column; align-items: center; }
+    .screen[hidden] { display: none !important; }
+
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
     .logo {
-      width: 110px;
+      width: 100px;
       height: auto;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
       filter: brightness(0) invert(1);
       opacity: 0.92;
     }
 
     h1 {
-      font-size: 44px;
+      font-size: 32px;
       font-weight: 700;
       color: #ffffff;
       letter-spacing: 1.5px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #c4a8e8;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .email-gate {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .email-input {
+      width: min(340px, 92vw);
+      padding: 12px 22px;
+      font-size: 15px;
+      color: #f0e8ff;
+      background: rgba(174, 120, 230, 0.1);
+      border: 1px solid rgba(174, 120, 230, 0.4);
+      border-radius: 50px;
+      outline: none;
+      text-align: center;
+      transition: border-color 0.2s, box-shadow 0.2s, animation 0.2s;
+      font-family: inherit;
+    }
+
+    .email-input::placeholder { color: rgba(200, 180, 220, 0.5); }
+
+    .email-input:focus {
+      border-color: rgba(174, 120, 230, 0.85);
+      box-shadow: 0 0 0 3px rgba(174, 120, 230, 0.18);
+    }
+
+    .email-input.primary {
+      border-color: rgba(174, 120, 230, 0.85);
+      animation: input-pulse 2.5s ease-in-out infinite;
+    }
+
+    .email-input.error {
+      border-color: rgba(255, 100, 120, 0.8);
+      box-shadow: 0 0 0 3px rgba(255, 100, 120, 0.15);
+      animation: none;
+    }
+
+    @keyframes input-pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(174, 120, 230, 0.12); }
+      50%       { box-shadow: 0 0 0 6px rgba(174, 120, 230, 0.26); }
+    }
+
+    .email-error {
+      font-size: 13px;
+      color: #ff8090;
+      min-height: 16px;
+    }
+
+    .tile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 880px;
+    }
+
+    @media (max-width: 720px) {
+      .tile-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 420px) {
+      .tile-grid { grid-template-columns: 1fr; }
+    }
+
+    .tile {
+      background: rgba(174, 120, 230, 0.08);
+      border: 1px solid rgba(174, 120, 230, 0.2);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: default;
+      opacity: 0.45;
+      transition: opacity 0.3s ease, background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+      position: relative;
+      user-select: none;
+      text-align: left;
+    }
+
+    .tile.unlocked {
+      opacity: 1;
+      cursor: pointer;
+    }
+
+    .tile.unlocked:hover {
+      background: rgba(174, 120, 230, 0.18);
+      border-color: rgba(174, 120, 230, 0.55);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(140, 70, 200, 0.3);
+    }
+
+    .tile.unlocked:active { transform: translateY(0); }
+
+    .tile-number {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #a97ee0;
+      text-transform: uppercase;
+    }
+
+    .tile-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f0e8ff;
+      line-height: 1.3;
+    }
+
+    .tile-desc {
+      font-size: 12px;
+      color: #9a85b0;
+      line-height: 1.5;
+      padding-right: 22px;
+    }
+
+    .tile-arrow {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      font-size: 15px;
+      color: rgba(174, 120, 230, 0.5);
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .tile.unlocked:hover .tile-arrow {
+      color: #c4a8e8;
+      transform: translate(2px, -2px);
+    }
+
+    /* ── Instructions screen ── */
+    .instr-top {
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .back-to-grid {
+      background: none;
+      border: none;
+      color: #a97ee0;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 8px 0;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+
+    .back-to-grid:hover { color: #d4c0f0; }
+
+    #instr-app-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      text-align: center;
     }
 
     .content-row {
       display: flex;
       align-items: stretch;
-      gap: 36px;
-      margin-bottom: 40px;
+      gap: 28px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .portrait {
-      width: 300px;
+      width: min(280px, 85vw);
       object-fit: cover;
       border-radius: 16px;
       flex-shrink: 0;
       box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    }
+
+    /* Replace .instr-image-placeholder with img.portrait when you have artwork */
+    .instr-image-placeholder {
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 3 / 4;
+      border: 2px dashed rgba(174, 120, 230, 0.42);
+      background: rgba(174, 120, 230, 0.07);
+      color: #a890c8;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.55;
+      text-align: center;
+      padding: 22px;
+    }
+
+    .instr-image-placeholder small {
+      display: block;
+      margin-top: 10px;
+      font-weight: 500;
+      font-size: 11px;
+      color: #7f6d96;
+      letter-spacing: 0.03em;
     }
 
     .body-copy {
@@ -94,14 +314,13 @@
       font-size: 15px;
       color: #c8b8dc;
       line-height: 1.7;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
-    /* ── checklist ── */
     .checklist {
       list-style: none;
       padding: 0;
-      margin: 0 0 20px;
+      margin: 0 0 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -150,10 +369,23 @@
       white-space: nowrap;
     }
 
-    /* ── BEGIN button ── */
+    .placeholder-banner {
+      width: 100%;
+      max-width: 640px;
+      padding: 16px 20px;
+      border-radius: 12px;
+      background: rgba(174, 120, 230, 0.12);
+      border: 1px dashed rgba(174, 120, 230, 0.45);
+      color: #c8b8dc;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
     .begin-btn {
-      padding: 20px 80px;
-      font-size: 20px;
+      padding: 18px 72px;
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: 5px;
       text-transform: uppercase;
@@ -164,7 +396,8 @@
       cursor: default;
       box-shadow: none;
       transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.15s ease;
-      position: relative;
+      font-family: inherit;
+      margin-top: 8px;
     }
 
     .begin-btn.ready {
@@ -193,59 +426,6 @@
       50%       { box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 8px 52px rgba(140,70,200,0.8); }
     }
 
-    /* ── email gate ── */
-    .email-gate {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 28px;
-    }
-
-    .email-input {
-      width: 340px;
-      padding: 14px 22px;
-      font-size: 15px;
-      color: #f0e8ff;
-      background: rgba(174, 120, 230, 0.1);
-      border: 1px solid rgba(174, 120, 230, 0.4);
-      border-radius: 50px;
-      outline: none;
-      text-align: center;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      font-family: inherit;
-    }
-
-    .email-input::placeholder { color: rgba(200, 180, 220, 0.5); }
-
-    .email-input:focus {
-      border-color: rgba(174, 120, 230, 0.85);
-      box-shadow: 0 0 0 3px rgba(174, 120, 230, 0.18);
-    }
-
-    .email-input.primary {
-      border-color: rgba(174, 120, 230, 0.85);
-      animation: input-pulse 2.5s ease-in-out infinite;
-    }
-
-    @keyframes input-pulse {
-      0%, 100% { box-shadow: 0 0 0 3px rgba(174, 120, 230, 0.12); }
-      50%       { box-shadow: 0 0 0 6px rgba(174, 120, 230, 0.26); }
-    }
-
-    .email-input.error {
-      border-color: rgba(255, 100, 120, 0.8);
-      box-shadow: 0 0 0 3px rgba(255, 100, 120, 0.15);
-    }
-
-    .email-error {
-      font-size: 13px;
-      color: #ff8090;
-      min-height: 18px;
-      letter-spacing: 0.3px;
-    }
-
-    /* ── Finish button (always rendered, hidden until demo starts) ── */
     #finish-btn {
       position: fixed;
       bottom: 28px;
@@ -267,6 +447,7 @@
       transition: opacity 0.4s ease, transform 0.15s ease, box-shadow 0.15s ease;
       opacity: 0;
       pointer-events: none;
+      font-family: inherit;
     }
 
     #finish-btn.visible {
@@ -288,104 +469,360 @@
 
   <iframe
     id="demo-frame"
-    src="https://onmicro.ai/app/embed/45ce3a57-fcbc-48"
+    src=""
     referrerpolicy="origin"
     allow="microphone">
-</iframe>
-  
-
-  <!--<iframe id="demo-frame" src="http://localhost/app/embed/a71f672c-a782-44" frameBorder="0" referrerpolicy="origin"></iframe>-->
+  </iframe>
 
   <div id="landing">
-    <img src="onMicroAI_logo_horiz_color-cropped.svg" alt="Logo" class="logo">
-    <h1>Clinical Simulation</h1>
+    <div class="landing-inner">
 
+      <!-- Home: email + tiles -->
+      <div id="screen-home" class="screen">
+        <div class="header">
+          <img src="onMicroAI_logo_horiz_color-cropped.svg" alt="Logo" class="logo">
+          <h1>Interactive Demos</h1>
+          <p class="subtitle">Enter your email, then choose an experience</p>
+        </div>
+
+        <div class="email-gate">
+          <input id="email-input" class="email-input" type="email" placeholder="Enter your email to unlock demos">
+          <span class="email-error" id="email-error"></span>
+        </div>
+
+        <div class="tile-grid" id="tile-grid"></div>
+      </div>
+
+      <!-- Per-app instructions → BEGIN -->
+      <div id="screen-instructions" class="screen" hidden>
+        <div class="instr-top">
+          <button type="button" class="back-to-grid" id="instr-back">← Choose a different demo</button>
+        </div>
+        <img src="onMicroAI_logo_horiz_color-cropped.svg" alt="Logo" class="logo">
+        <h2 id="instr-app-title"></h2>
+        <div id="instr-body"></div>
+        <p class="email-error" id="instr-begin-error" style="min-height:0;margin-top:12px;display:none;"></p>
+        <button type="button" class="begin-btn ready" id="begin-btn">BEGIN</button>
+      </div>
+
+    </div>
+  </div>
+
+  <button type="button" id="finish-btn">↩ &nbsp;Back</button>
+
+  <template id="tpl-clinical-body">
     <div class="content-row">
-    <img src="Gable_portrait.png" alt="Gable" class="portrait">
-    <div class="body-copy">
-      <p>In the sample simulation app, you'll play the role of a <em>clinician speaking to a patient.</em> You'll be assessed on how well you can do the following:</p>
+      <img src="Gable_portrait.png" alt="Gable" class="portrait">
+      <div class="body-copy">
+        <p>In the sample simulation app, you'll play the role of a <em>clinician speaking to a patient.</em> You'll be assessed on how well you can do the following:</p>
+        <ul class="checklist">
+          <li>
+            <div class="check-box">1</div>
+            <span class="check-label">Introduce your <em>name</em> and your <em>role</em></span>
+          </li>
+          <li>
+            <div class="check-box">2</div>
+            <span class="check-label">Ask the patient where the pain is <em>located</em></span>
+          </li>
+          <li>
+            <div class="check-box">3</div>
+            <span class="check-label">Ask the patient to rate the pain on a <em>scale of 1 to 10</em></span>
+          </li>
+        </ul>
+        <p>You will only have a <em>short conversation (5 turns)</em> to complete these tasks. Once completed, you will have a chance to <em>make a diagnosis</em> and <em>receive feedback.</em></p>
+      </div>
+    </div>
+  </template>
+
+  <template id="tpl-language-practice-body">
+    <div class="content-row">
+    <img src="flags.png" alt="Flags" class="portrait">
+    <div class="body-copy" style="max-width: 640px; margin: 0 auto;">
+      <p>In the sample simulation app, you'll converse in either <em>Spanish</em>, <em>French</em>, <em>German</em>, or <em>Mandarin Chinese</em>. You'll be assessed on how well you can do the following:</p>
       <ul class="checklist">
         <li>
           <div class="check-box">1</div>
-          <span class="check-label">Introduce your <em>name</em> and your <em>role</em></span>
+          <span class="check-label">Choose your <em>target language</em></span>
         </li>
         <li>
           <div class="check-box">2</div>
-          <span class="check-label">Ask the patient where the pain is <em>located</em></span>
+          <span class="check-label"><em>Introduce yourself</em> and <em>one of your hobbies</em> to the conversation partner</span>
         </li>
         <li>
           <div class="check-box">3</div>
-          <span class="check-label">Ask the patient to rate the pain on a <em>scale of 1 to 10</em></span>
+          <span class="check-label">Try to speak <em>only</em> in your <em>target language</em></span>
         </li>
       </ul>
-      <p>You will only have a <em>short conversation (5 turns)</em> to complete these tasks. Once completed, you will have a chance to <em>make a diagnosis</em> and <em>receive feedback.</em></p>
+      <p>You will only have a <em>short conversation (5 turns)</em> to complete these tasks. Once completed, you will have a chance to <em>receive feedback.</em></p>
     </div>
-    </div>
-
-    <div class="email-gate">
-      <input id="email-input" class="email-input" type="email" placeholder="Enter your email to begin">
-      <span class="email-error" id="email-error"></span>
-    </div>
-
-    <button class="begin-btn" onclick="beginDemo()">BEGIN</button>
   </div>
+  </template>
 
-  <button id="finish-btn" onclick="finishDemo()">✕ &nbsp;Finish</button>
+  <template id="tpl-case-study-body">
+    <div class="content-row">
+      <img src="hotel.png" alt="Hotel" class="portrait">
+      <div class="body-copy">
+        <p>The goal is to read and <em>critically analyze</em> a business case study about a new hotel. You will receive feedback based on the instructor's rubric.</p>
+        <ul class="checklist">
+          <li>
+            <div class="check-box">1</div>
+            <span class="check-label"><em>Answer</em> each question using evidence from the case</span>
+          </li>
+          <li>
+            <div class="check-box">2</div>
+            <span class="check-label"><em>Double-click</em> any answer field to accept the default answer.</span>
+          </li>
+          <li>
+            <div class="check-box">3</div>
+            <span class="check-label">Review <em>your feedback,</em> which reflects the instructor <em>rubric</em></span>
+          </li>
+        </ul>
+        <p>Remember, <em>double-clicking</em> any answer field will accept the default answer.</p>
+      </div>
+    </div>
+  </template>
 
   <script>
-    const landing    = document.getElementById('landing');
-    const finishBtn  = document.getElementById('finish-btn');
-    const frame      = document.getElementById('demo-frame');
-    const emailInput = document.getElementById('email-input');
-    const emailError = document.getElementById('email-error');
-    const frameSrc   = frame.src;
+    const landing        = document.getElementById('landing');
+    const finishBtn      = document.getElementById('finish-btn');
+    const frame          = document.getElementById('demo-frame');
+    const emailInput     = document.getElementById('email-input');
+    const emailError     = document.getElementById('email-error');
+    const screenHome     = document.getElementById('screen-home');
+    const screenInstr    = document.getElementById('screen-instructions');
+    const instrTitleEl   = document.getElementById('instr-app-title');
+    const instrBodyEl    = document.getElementById('instr-body');
+    const instrBack      = document.getElementById('instr-back');
+    const beginBtn       = document.getElementById('begin-btn');
+    const tileGrid       = document.getElementById('tile-grid');
+    const tplClinical    = document.getElementById('tpl-clinical-body');
+    const tplLanguagePractice = document.getElementById('tpl-language-practice-body');
+    const tplCaseStudy = document.getElementById('tpl-case-study-body');
+    const instrBeginErr  = document.getElementById('instr-begin-error');
+
+    /** @type {{ embedSrc: string, trackName: string, title: string, number: string, desc: string, instruction: 'clinical'|'case-study'|'language-practice'|'placeholder', placeholderSubtitle?: string }[]} */
+    const APPS = [
+      {
+        number: '01',
+        title: 'Clinical Simulation',
+        desc: 'Play the clinician in a short patient dialogue, complete tasks, then diagnose and receive feedback.',
+        embedSrc: 'https://onmicro.ai/app/embed/45ce3a57-fcbc-48',
+        trackName: 'Clinical Demo',
+        instruction: 'clinical'
+      },
+      {
+        number: '02',
+        title: 'Case Study Feedback',
+        desc: 'Critical thinking prompts around a case study with immediate feedback.',
+        embedSrc: 'https://onmicro.ai/app/embed/case-study-feedback',
+        trackName: 'Case Study Feedback',
+        instruction: 'case-study'
+      },
+      {
+        number: '03',
+        title: 'Language Practice',
+        desc: 'Natural discussion in a foreign language with assessment of usage, vocabulary, and topic completion.',
+        embedSrc: 'https://onmicro.ai/app/embed/bf1e3bfd-27c2-4c',
+        trackName: 'Language Practice',
+        instruction: 'language-practice'
+      },
+      {
+        number: '04',
+        title: 'App Title Three',
+        desc: 'Brief description of what this demo does. Replace copy and embed URL when ready.',
+        embedSrc: 'PASTE_APP_3_URL',
+        trackName: 'App Title Three',
+        instruction: 'placeholder',
+        placeholderSubtitle: 'Placeholder — add app-specific instructions later.'
+      },
+      {
+        number: '05',
+        title: 'MCQ Generator',
+        desc: 'Generate multiple choice questions consistently; MCQ rules are built in for all users.',
+        embedSrc: 'https://onmicro.ai/app/embed/mcq-generator',
+        trackName: 'MCQ Generator',
+        instruction: 'placeholder',
+        placeholderSubtitle: 'Instructions for this experience will appear here.'
+      },
+      {
+        number: '06',
+        title: 'App Title Five',
+        desc: 'Brief description of what this demo does. Replace copy and embed URL when ready.',
+        embedSrc: 'PASTE_APP_5_URL',
+        trackName: 'App Title Five',
+        instruction: 'placeholder',
+        placeholderSubtitle: 'Placeholder — add app-specific instructions later.'
+      }
+    ];
+
+    let selectedIndex = -1;
+    let frameSrc = '';
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTWbcsEDMVFixa3ERkCcMulxB0pb77mtyoFmUy2s2lePCV3Z_NV59Kgb0JGPsicjCbzA/exec';
 
     function isValidEmail(val) {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
     }
 
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTWbcsEDMVFixa3ERkCcMulxB0pb77mtyoFmUy2s2lePCV3Z_NV59Kgb0JGPsicjCbzA/exec';
-
-    function beginDemo() {
-      if (!isValidEmail(emailInput.value)) {
-        emailInput.classList.add('error');
-        emailError.textContent = 'Please enter a valid email address.';
-        emailInput.focus();
-        return;
-      }
-      emailInput.classList.remove('error');
-      emailError.textContent = '';
-
-      fetch(SCRIPT_URL + '?email=' + encodeURIComponent(emailInput.value.trim()) + '&app=Clinical%20Demo', {
-        mode: 'no-cors'
-      }).catch(() => {});
-
-      landing.classList.add('slide-up');
-      finishBtn.classList.add('visible');
+    function getSelectedApp() {
+      return selectedIndex >= 0 ? APPS[selectedIndex] : null;
     }
 
-    const beginBtn = document.querySelector('.begin-btn');
+    function buildPlaceholderBody(app) {
+      const wrap = document.createElement('div');
+      wrap.className = 'body-copy';
+      const banner = document.createElement('div');
+      banner.className = 'placeholder-banner';
+      banner.innerHTML = '<strong>Instructions coming soon.</strong> This screen is a placeholder. Replace it with copy, media, and any checklist items specific to <em>' + app.title + '</em>.';
+      wrap.appendChild(banner);
+      const p = document.createElement('p');
+      p.textContent = app.placeholderSubtitle || 'Instructions for this experience will appear here.';
+      wrap.appendChild(p);
+      const ul = document.createElement('ul');
+      ul.className = 'checklist';
+      for (let i = 1; i <= 3; i++) {
+        const li = document.createElement('li');
+        li.innerHTML = '<div class="check-box">' + i + '</div><span class="check-label">Placeholder step ' + i + ' — describe what the participant should do.</span>';
+        ul.appendChild(li);
+      }
+      wrap.appendChild(ul);
+      return wrap;
+    }
 
-    emailInput.classList.add('primary');
+    function showHome() {
+      screenInstr.hidden = true;
+      screenHome.hidden = false;
+      selectedIndex = -1;
+    }
 
-    emailInput.addEventListener('input', () => {
+    function showInstructions(index) {
+      const app = APPS[index];
+      if (!app) return;
+      selectedIndex = index;
+      screenHome.hidden = true;
+      screenInstr.hidden = false;
+      instrBeginErr.style.display = 'none';
+      instrBeginErr.textContent = '';
+      instrTitleEl.textContent = app.title;
+      instrBodyEl.replaceChildren();
+      if (app.instruction === 'clinical') {
+        instrBodyEl.appendChild(tplClinical.content.cloneNode(true));
+      } else if (app.instruction === 'case-study') {
+        instrBodyEl.appendChild(tplCaseStudy.content.cloneNode(true));
+      } else if (app.instruction === 'language-practice') {
+        instrBodyEl.appendChild(tplLanguagePractice.content.cloneNode(true));
+      } else {
+        instrBodyEl.appendChild(buildPlaceholderBody(app));
+      }
+    }
+
+    function renderTiles() {
+      tileGrid.replaceChildren();
+      APPS.forEach((app, index) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile';
+        tile.dataset.index = String(index);
+        tile.innerHTML =
+          '<div class="tile-number">' + app.number + '</div>' +
+          '<div class="tile-title">' + app.title + '</div>' +
+          '<div class="tile-desc">' + app.desc + '</div>' +
+          '<span class="tile-arrow">↗</span>';
+        tile.addEventListener('click', () => {
+          if (!tile.classList.contains('unlocked')) return;
+          if (!isValidEmail(emailInput.value)) {
+            emailInput.classList.add('error');
+            emailError.textContent = 'Please enter a valid email address.';
+            return;
+          }
+          emailInput.classList.remove('error');
+          emailError.textContent = '';
+          showInstructions(index);
+        });
+        tileGrid.appendChild(tile);
+      });
+    }
+
+    function updateTileUnlockState() {
       const valid = isValidEmail(emailInput.value);
-      beginBtn.classList.toggle('ready', valid);
+      tileGrid.querySelectorAll('.tile').forEach(t => t.classList.toggle('unlocked', valid));
       emailInput.classList.toggle('primary', !valid);
       if (emailInput.classList.contains('error') && valid) {
         emailInput.classList.remove('error');
         emailError.textContent = '';
       }
-    });
+    }
+
+    function beginDemo() {
+      const app = getSelectedApp();
+      if (!app) return;
+      if (!isValidEmail(emailInput.value)) {
+        emailInput.classList.add('error');
+        emailError.textContent = 'Please enter a valid email address.';
+        showHome();
+        emailInput.focus();
+        return;
+      }
+      const src = (app.embedSrc || '').trim();
+      if (!src || src.startsWith('PASTE_')) {
+        instrBeginErr.textContent = 'This demo\'s embed URL is not configured yet.';
+        instrBeginErr.style.display = 'block';
+        return;
+      }
+      emailInput.classList.remove('error');
+      emailError.textContent = '';
+
+      fetch(
+        SCRIPT_URL +
+          '?email=' + encodeURIComponent(emailInput.value.trim()) +
+          '&app=' + encodeURIComponent(app.trackName),
+        { mode: 'no-cors' }
+      ).catch(() => {});
+
+      frameSrc = src;
+      frame.src = frameSrc;
+      landing.classList.add('slide-up');
+      finishBtn.classList.add('visible');
+    }
 
     function finishDemo() {
-      const frameOrigin = new URL(frameSrc).origin;
-      frame.contentWindow.postMessage({ type: "microai-embed-restart" }, frameOrigin);
-      frame.src = frameSrc;
+      const origin = frameSrc ? (() => {
+        try { return new URL(frameSrc).origin; } catch (_) { return '*'; }
+      })() : '*';
+      if (frame.contentWindow && frame.src) {
+        frame.contentWindow.postMessage({ type: 'microai-embed-restart' }, origin);
+      }
+      frame.src = '';
+      frameSrc = '';
       landing.classList.remove('slide-up');
       finishBtn.classList.remove('visible');
-      emailInput.value = '';
+      showHome();
     }
+
+    emailInput.classList.add('primary');
+    emailInput.addEventListener('input', updateTileUnlockState);
+
+    /** Kiosk reset: tapping header/empty area (outside email + tiles) clears email for next guest. */
+    landing.addEventListener('click', (e) => {
+      if (!screenHome || screenHome.hidden) return;
+      if (e.target.closest('#email-input')) return;
+      if (e.target.closest('.tile')) return;
+      /** Same click bubbles here after "Choose a different demo" reveals home — do not treat as kiosk reset. */
+      if (e.target.closest('#screen-instructions')) return;
+      emailInput.value = '';
+      emailInput.classList.remove('error');
+      emailError.textContent = '';
+      updateTileUnlockState();
+    });
+
+    instrBack.addEventListener('click', () => {
+      showHome();
+    });
+
+    beginBtn.addEventListener('click', beginDemo);
+    finishBtn.addEventListener('click', finishDemo);
+
+    renderTiles();
+    updateTileUnlockState();
   </script>
 </body>
 </html>
